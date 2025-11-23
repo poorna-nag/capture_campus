@@ -132,33 +132,70 @@ class HomeTabState extends State<HomeTab> {
                     SizedBox(height: 20),
                     Text('Recent uploads', style: TextStyle(fontSize: 20)),
                     SizedBox(height: 20),
-                    // BlocBuilder(
-                    //   builder: (context, state) {
-
-                    //   },
-                    // ),
+                    Expanded(
+                      child: state.eventInfo.isEmpty
+                          ? Center(
+                              child: Text(
+                                'No events yet',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: state.eventInfo.length,
+                              itemBuilder: (context, index) {
+                                final event = state.eventInfo[index];
+                                return Card(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                event.eventName,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(height: 4),
+                                              Text(
+                                                event.date,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
                   ],
                 ),
               ),
             ),
           );
-        } else if (state is Error) {
-          return Text(state.toString());
-        } else if (state is GetEventInfoState) {
-          if (state.eventInfo.isEmpty) {
-            return Text('No Event Added');
-          }
-          Expanded(
-            child: ListView.builder(
-              itemCount: state.eventInfo.length,
-              itemBuilder: (context, index) {
-                final event = state.eventInfo[index];
-                return Card(
-                  child: Row(
-                    children: [Text(event.eventName), Text(event.date)],
-                  ),
-                );
-              },
+        } else if (state is HomeErrorState) {
+          return Center(
+            child: Text(
+              'Error: ${state.error}',
+              style: TextStyle(color: Colors.red),
             ),
           );
         }

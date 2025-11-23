@@ -122,9 +122,7 @@ class _AddInfoScreenState extends State<AddInfoScreen> {
                       GetEventInfoEvent(eventInfo: eventInfo),
                     );
 
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      Navigator.pop(context);
-                    });
+                    Navigator.pop(context);
 
                     // }
                   },

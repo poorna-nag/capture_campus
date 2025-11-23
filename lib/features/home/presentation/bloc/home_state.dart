@@ -9,7 +9,11 @@ class HomeInitState extends HomeState {}
 
 class HomeLoadingState extends HomeState {}
 
-class HomeloadedState extends HomeState {}
+class HomeloadedState extends HomeState {
+  final List<EventInfo> eventInfo;
+  
+  HomeloadedState({this.eventInfo = const []});
+}
 
 class HomeErrorState extends HomeState {
   final String error;
@@ -29,11 +33,3 @@ class CamaraToCaptureEventState extends HomeState {
   CamaraToCaptureEventState({required this.camara});
 }
 
-class GetEventInfoState extends HomeState {
-  List<EventInfo> eventInfo;
-  GetEventInfoState({required this.eventInfo});
-
-  GetEventInfoState copyWith({List<EventInfo>? events}) {
-    return GetEventInfoState(eventInfo: eventInfo);
-  }
-}

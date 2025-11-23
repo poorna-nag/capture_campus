@@ -48,7 +48,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) {
     try {
-      emit(HomeloadedState());
+      emit(HomeloadedState(eventInfo: const []));
     } catch (e) {
       emit(HomeErrorState(error: state.toString()));
     }
@@ -77,14 +77,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) {
     List<EventInfo> currentEventInfo = [];
-    if (state is GetEventInfoState) {
+    if (state is HomeloadedState) {
       currentEventInfo = List<EventInfo>.from(
-        (state as GetEventInfoState).eventInfo,
+        (state as HomeloadedState).eventInfo,
       );
     }
     final eventUpdate = List<EventInfo>.from(currentEventInfo)
       ..add(event.eventInfo);
-    emit(GetEventInfoState(eventInfo: eventUpdate));
-    // emit(HomeloadedState());
+    emit(HomeloadedState(eventInfo: eventUpdate));
   }
 }
