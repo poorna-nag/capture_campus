@@ -1,4 +1,5 @@
 import 'package:capture_campus/features/home/presentation/widgets/add_info_screen.dart';
+import 'package:capture_campus/features/home/presentation/widgets/camera_screen.dart';
 import 'package:capture_campus/features/home/presentation/widgets/home_screen.dart';
 import 'package:capture_campus/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -48,9 +49,15 @@ class NavigationService {
           builder: (_) => HomeScreen(),
           settings: settings,
         );
+      case AppRoutes.camara:
+        return MaterialPageRoute(
+          builder: (_) => CameraScreen(),
+          settings: settings,
+        );
       case AppRoutes.addInfo:
         final args = settings.arguments as Map<String, dynamic>?;
-        final List<XFile?> imageNullable = args?['images'] as List<XFile?>? ?? [];
+        final List<XFile?> imageNullable =
+            args?['images'] as List<XFile?>? ?? [];
         final List<XFile> image = imageNullable.whereType<XFile>().toList();
         return MaterialPageRoute(
           builder: (_) => AddInfoScreen(images: image),
@@ -70,4 +77,5 @@ class AppRoutes {
   static const String sp = '/sp';
   static const String home = "/home";
   static const String addInfo = "/addInfo";
+  static const String camara = '/camara';
 }

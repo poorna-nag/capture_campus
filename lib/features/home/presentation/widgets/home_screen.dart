@@ -1,6 +1,7 @@
+import 'package:capture_campus/features/home/presentation/bloc/home_event.dart';
 import 'package:capture_campus/features/home/presentation/widgets/account_screen.dart';
 import 'package:capture_campus/features/home/presentation/bloc/home_bloc.dart';
-import 'package:capture_campus/features/home/presentation/bloc/home_event.dart';
+
 import 'package:capture_campus/features/home/presentation/widgets/home_tab.dart';
 import 'package:capture_campus/features/home/presentation/widgets/save_screen.dart';
 import 'package:capture_campus/features/home/presentation/widgets/search_screen.dart';
@@ -63,7 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.grey,
-        onPressed: () {},
+        onPressed: () {
+          context.read<HomeBloc>().add(OpenCameraEvent());
+        },
         child: Icon(Icons.camera, color: Colors.amber, size: 35),
       ),
     );

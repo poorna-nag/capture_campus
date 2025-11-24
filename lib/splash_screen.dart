@@ -4,31 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   context.read<HomeBloc>().add(NavToHomeScreen());
-  // }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => HomeBloc(),
+      create: (_) => HomeBloc(),
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned(
+            Positioned.fill(
               child: Container(
-                height: double.infinity,
-                width: double.infinity,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage('assets/images/camara.png'),
@@ -37,71 +24,88 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-            Positioned(
-              top: 120,
-              left: 40,
-              child: Text(
-                "Poto",
-                style: GoogleFonts.abrilFatface(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 52,
-                  color: Colors.amberAccent,
-                  shadows: [Shadow(blurRadius: 10)],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 500,
-              left: 35,
-              child: Text(
-                "Capture Campus.",
-                style: GoogleFonts.abrilFatface(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 42,
-                  color: Colors.white,
-                  shadows: [Shadow(blurRadius: 10)],
-                ),
-              ),
-            ),
 
-            Positioned(
-              top: 600,
-              left: 35,
-              child: Text(
-                "Your Lens, Our Campus Story",
-                style: GoogleFonts.afacad(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 32,
-                  color: Colors.white,
-                  shadows: [Shadow(blurRadius: 8)],
-                ),
-              ),
-            ),
+            SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 80),
 
-            Positioned(
-              bottom: 150,
-              left: 120,
-              child: GestureDetector(
-                onTap: () {
-                  context.read<HomeBloc>().add(NavToHomeScreen());
-                },
-                child: Container(
-                  height: 60,
-                  width: 200,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(34),
-                    border: Border.all(color: Colors.amberAccent, width: 2),
-                  ),
-                  child: const Text(
-                    "Let's Start",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 40),
+                    child: Text(
+                      "Poto",
+                      style: GoogleFonts.abrilFatface(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 52,
+                        color: Colors.amberAccent,
+                        shadows: const [Shadow(blurRadius: 10)],
+                      ),
                     ),
                   ),
-                ),
+
+                  const Spacer(),
+
+                  Padding(
+                    padding: const EdgeInsets.only(left: 30),
+                    child: Text(
+                      "Capture Campus.",
+                      style: GoogleFonts.abrilFatface(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 42,
+                        color: Colors.white,
+                        shadows: const [Shadow(blurRadius: 10)],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Padding(
+                    padding: EdgeInsets.only(left: 25),
+                    child: Text(
+                      "Your Lens, Our Campus Story",
+                      style: GoogleFonts.afacad(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 28,
+                        color: Colors.white,
+                        shadows: const [Shadow(blurRadius: 8)],
+                      ),
+                    ),
+                  ),
+
+                  const Spacer(),
+
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<HomeBloc>().add(NavToHomeScreen());
+                      },
+                      child: Container(
+                        height: 60,
+                        width: 200,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(34),
+                          border: Border.all(
+                            color: Colors.amberAccent,
+                            width: 2,
+                          ),
+                        ),
+                        child: const Text(
+                          "Let's Start",
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 60),
+                ],
               ),
             ),
           ],

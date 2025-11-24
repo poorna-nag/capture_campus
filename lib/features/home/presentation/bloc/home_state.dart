@@ -23,10 +23,10 @@ class UploadEventState extends HomeState {
   UploadEventState({required this.pickImag});
 }
 
-class CamaraToCaptureEventState extends HomeState {
-  final XFile? camara;
+class OpenCameraState extends HomeState {
+  final List<XFile> camara;
 
-  CamaraToCaptureEventState({required this.camara});
+ OpenCameraState({required this.camara});
 }
 
 class GetEventInfoState extends HomeState {

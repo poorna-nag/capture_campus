@@ -116,15 +116,10 @@ class _AddInfoScreenState extends State<AddInfoScreen> {
                       eventInfo: eventInfoController.text,
                       userName: userNameController.text,
                       date: dateControllerController.text,
+                      images: widget.images,
                     );
 
-                    context.read<HomeBloc>().add(
-                      GetEventInfoEvent(eventInfo: eventInfo),
-                    );
-
-                    Future.delayed(const Duration(milliseconds: 100), () {
-                      Navigator.pop(context);
-                    });
+                    Navigator.pop(context, eventInfo);
 
                     // }
                   },

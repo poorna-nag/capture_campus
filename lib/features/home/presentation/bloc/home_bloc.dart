@@ -12,8 +12,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeLoadingEvent>(_onHomeLoadingEvent);
     on<NavToHomeScreen>(_onNavToHomeScreen);
     on<UploadEvent>(_onUploadEvent);
-    on<FatchData>(_onFatchData);
-    on<CamaraToCaptureEvent>(_onCamaraToCaptureEvent);
+    on<OpenCameraEvent>(_onOpenCameraEvent);
     on<GetEventInfoEvent>(_onGetEventInfoEvent);
   }
 
@@ -35,13 +34,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       NavigationService.pushNamed(
         routeName: AppRoutes.addInfo,
         arguments: {'images': event.image},
-      );
+      ).then((value) {
+        if (value is EventInfo) {
+          add(GetEventInfoEvent(eventInfo: value));
+        }
+      });
     } catch (e) {
       emit(HomeErrorState(error: state.toString()));
     }
   }
-
-  FutureOr<void> _onFatchData(FatchData event, Emitter<HomeState> emit) {}
 
   FutureOr<void> _onHomeLoadingEvent(
     HomeLoadingEvent event,
@@ -51,24 +52,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(HomeloadedState());
     } catch (e) {
       emit(HomeErrorState(error: state.toString()));
-    }
-  }
-
-  FutureOr<void> _onCamaraToCaptureEvent(
-    CamaraToCaptureEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    try {
-      final camara = await picker.pickImage(source: ImageSource.camera);
-      if (camara != null) {
-        emit(CamaraToCaptureEventState(camara: camara));
-        NavigationService.pushNamed(
-          routeName: AppRoutes.addInfo,
-          arguments: {'images': event.camara},
-        );
-      }
-    } catch (e) {
-      emit(HomeErrorState(error: e.toString()));
     }
   }
 
@@ -85,6 +68,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final eventUpdate = List<EventInfo>.from(currentEventInfo)
       ..add(event.eventInfo);
     emit(GetEventInfoState(eventInfo: eventUpdate));
-    // emit(HomeloadedState());
+  }
+
+  FutureOr<void> _onOpenCameraEvent(
+    OpenCameraEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    NavigationService.pushNamed(routeName: AppRoutes.camara).then((value) {
+      if (value is XFile) {
+        NavigationService.pushNamed(
+          routeName: AppRoutes.addInfo,
+          arguments: {
+            'images': [value],
+          },
+        ).then((value) {
+          if (value is EventInfo) {
+            add(GetEventInfoEvent(eventInfo: value));
+          }
+        });
+      }
+    });
+
+    // final image = await picker.pickImage(source: ImageSource.camera);
   }
 }
