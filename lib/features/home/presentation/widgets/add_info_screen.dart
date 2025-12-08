@@ -119,6 +119,8 @@ class _AddInfoScreenState extends State<AddInfoScreen> {
                       images: widget.images,
                     );
 
+                    // context.read<HomeBloc>().add(OpenCameraEvent());
+                    Navigator.pop(context, eventInfo);
                     Navigator.pop(context, eventInfo);
 
                     // }

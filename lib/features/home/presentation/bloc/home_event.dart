@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:capture_campus/features/home/data/event_info.dart';
-
+import 'package:image_picker/image_picker.dart';
 
 class HomeEvent {}
 
@@ -17,8 +17,7 @@ class OpenCameraEvent extends HomeEvent {
 
   OpenCameraEvent(
     // {required this.takenPhoto}
-    );
-
+  );
 }
 
 class GetEventInfoEvent extends HomeEvent {
@@ -26,3 +25,11 @@ class GetEventInfoEvent extends HomeEvent {
 
   GetEventInfoEvent({required this.eventInfo});
 }
+
+class NavToAddInfoEvent extends HomeEvent {
+  final List<XFile?> selectedFiles;
+
+  NavToAddInfoEvent({required this.selectedFiles});
+}
+
+

@@ -18,6 +18,12 @@ dependencies:
   geolocator: ^14.0.2
   camera: ^0.11.0
   geocoding: ^4.0.0
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  saver_gallery: ^4.1.0
+  flutter_launcher_icons: ^0.14.4
+  exif: ^3.3.0
 
 dev_dependencies:
   flutter_test:

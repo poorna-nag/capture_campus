@@ -1,3 +1,6 @@
+import 'package:capture_campus/features/auth/presentation/login_screen.dart';
+import 'package:capture_campus/features/auth/presentation/signin_screen.dart';
+import 'package:capture_campus/features/home/data/event_info.dart';
 import 'package:capture_campus/features/home/presentation/widgets/add_info_screen.dart';
 import 'package:capture_campus/features/home/presentation/widgets/camera_screen.dart';
 import 'package:capture_campus/features/home/presentation/widgets/home_screen.dart';
@@ -50,8 +53,18 @@ class NavigationService {
           settings: settings,
         );
       case AppRoutes.camara:
-        return MaterialPageRoute(
+        return MaterialPageRoute<XFile?>(
           builder: (_) => CameraScreen(),
+          settings: settings,
+        );
+      case AppRoutes.login:
+        return MaterialPageRoute<bool?>(
+          builder: (_) => LoginScreen(),
+          settings: settings,
+        );
+      case AppRoutes.signup:
+        return MaterialPageRoute(
+          builder: (_) => SigninScreen(),
           settings: settings,
         );
       case AppRoutes.addInfo:
@@ -59,7 +72,7 @@ class NavigationService {
         final List<XFile?> imageNullable =
             args?['images'] as List<XFile?>? ?? [];
         final List<XFile> image = imageNullable.whereType<XFile>().toList();
-        return MaterialPageRoute(
+        return MaterialPageRoute<EventInfo?>(
           builder: (_) => AddInfoScreen(images: image),
           settings: settings,
         );
@@ -78,4 +91,6 @@ class AppRoutes {
   static const String home = "/home";
   static const String addInfo = "/addInfo";
   static const String camara = '/camara';
+  static const String login = '/login';
+  static const String signup = '/singup';
 }

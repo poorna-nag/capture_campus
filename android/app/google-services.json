@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "899337678586",
+    "project_id": "shop-me-a0321",
+    "storage_bucket": "shop-me-a0321.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899337678586:android:88ee98b54b6dd3d4daa343",
+        "android_client_info": {
+          "package_name": "com.example.capture_campus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAucyKJEq4uk9oVQDpYq74lgxKRFozGKUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899337678586:android:0b2a1690ef471fc5daa343",
+        "android_client_info": {
+          "package_name": "com.example.shopme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAucyKJEq4uk9oVQDpYq74lgxKRFozGKUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

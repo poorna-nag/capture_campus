@@ -77,31 +77,13 @@ class SplashScreen extends StatelessWidget {
                   const Spacer(),
 
                   Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        context.read<HomeBloc>().add(NavToHomeScreen());
-                      },
-                      child: Container(
-                        height: 60,
-                        width: 200,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(34),
-                          border: Border.all(
-                            color: Colors.amberAccent,
-                            width: 2,
-                          ),
-                        ),
-                        child: const Text(
-                          "Let's Start",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: logButton(() {
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => LoginScreen()),
+                      // );
+                      context.read<HomeBloc>().add(NavToHomeScreen());
+                    }, "Let's Start"),
                   ),
 
                   const SizedBox(height: 60),
@@ -113,4 +95,27 @@ class SplashScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget logButton(VoidCallback onTap, String text) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      height: 60,
+      width: 200,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(34),
+        border: Border.all(color: Colors.amberAccent, width: 2),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 20,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  );
 }
