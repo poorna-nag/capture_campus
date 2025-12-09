@@ -1,3 +1,4 @@
+import 'package:capture_campus/features/home/presentation/widgets/google_sign_in.dart';
 import 'package:capture_campus/features/auth/presentation/login_screen.dart';
 import 'package:capture_campus/features/auth/presentation/signin_screen.dart';
 import 'package:capture_campus/features/home/data/event_info.dart';
@@ -67,6 +68,13 @@ class NavigationService {
           builder: (_) => SigninScreen(),
           settings: settings,
         );
+      case AppRoutes.googleSignup:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final EventInfo? eventInfo = args?['eventInfo'] as EventInfo?;
+        return MaterialPageRoute<bool?>(
+          builder: (_) => GoogleSignInScreen(eventInfo: eventInfo),
+          settings: settings,
+        );
       case AppRoutes.addInfo:
         final args = settings.arguments as Map<String, dynamic>?;
         final List<XFile?> imageNullable =
@@ -93,4 +101,5 @@ class AppRoutes {
   static const String camara = '/camara';
   static const String login = '/login';
   static const String signup = '/singup';
+  static const String googleSignup = '/googleSingup';
 }

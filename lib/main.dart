@@ -25,7 +25,6 @@ class MainApp extends StatelessWidget {
       ],
 
       child: MaterialApp(
-        theme: ThemeData.dark(),
         navigatorKey: NavigationService.navigatorKey,
         onGenerateRoute: NavigationService.onGenerateRoute,
         initialRoute: AppRoutes.sp,

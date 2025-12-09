@@ -121,7 +121,6 @@ class _AddInfoScreenState extends State<AddInfoScreen> {
 
                     // context.read<HomeBloc>().add(OpenCameraEvent());
                     Navigator.pop(context, eventInfo);
-                    Navigator.pop(context, eventInfo);
 
                     // }
                   },

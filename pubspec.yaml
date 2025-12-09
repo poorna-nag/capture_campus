@@ -24,6 +24,11 @@ dependencies:
   saver_gallery: ^4.1.0
   flutter_launcher_icons: ^0.14.4
   exif: ^3.3.0
+  image: ^4.1.7
+  google_sign_in: ^6.1.6 
+  googleapis: ^11.4.0 
+  http: ^1.2.0
+
 
 dev_dependencies:
   flutter_test:

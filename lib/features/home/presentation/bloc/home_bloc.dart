@@ -49,17 +49,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       if (info == null) return;
 
-      final bool? loggedIn = await NavigationService.pushNamed(
-        routeName: AppRoutes.login,
+      final bool? googleSignIn = await NavigationService.pushNamed(
+        routeName: AppRoutes.googleSignup,
+        arguments: {'eventInfo': info},
       );
 
-      if (loggedIn != true) return;
+      if (googleSignIn != true) return;
 
-      // 4. Upload everything to drive
-      // await uploadToDrive(images, info);
-
-      // 5. Navigate back home
-      NavigationService.pushNamed(routeName: AppRoutes.home);
+      add(GetEventInfoEvent(eventInfo: info));
     } catch (e) {
       emit(HomeErrorState(error: e.toString()));
     }
@@ -97,13 +94,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     if (info == null) return;
 
-    final loggedIn = await NavigationService.pushNamed(
-      routeName: AppRoutes.login,
+    final bool? googleSignIn = await NavigationService.pushNamed(
+      routeName: AppRoutes.googleSignup,
+      arguments: {'eventInfo': info},
     );
 
-    if (loggedIn != true) return;
-
-    add(GetEventInfoEvent(eventInfo: info));
+    if (googleSignIn == true) {
+      add(GetEventInfoEvent(eventInfo: info));
+    }
   }
 
   FutureOr<void> _onNavToAddInfoEvent(
@@ -119,12 +117,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     if (info == null) return;
 
-    final loggedIn = await NavigationService.pushNamed(
-      routeName: AppRoutes.login,
+    final bool? googleSignIn = await NavigationService.pushNamed(
+      routeName: AppRoutes.googleSignup,
+      arguments: {'eventInfo': info},
     );
 
-    if (loggedIn != true) return;
-
-    add(GetEventInfoEvent(eventInfo: info));
+    if (googleSignIn == true) {
+      add(GetEventInfoEvent(eventInfo: info));
+    }
   }
 }

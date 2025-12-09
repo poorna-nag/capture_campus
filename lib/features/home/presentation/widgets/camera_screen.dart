@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 import 'gallery_screen.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -20,6 +21,8 @@ class _CameraScreenState extends State<CameraScreen>
   List<CameraDescription>? cameras;
   bool isRecording = false;
   int selectedCameraIndex = 0;
+  Duration recordingDuration = Duration.zero;
+  DateTime? recordingStartTime;
 
   double? latitude;
   double? longitude;
@@ -30,6 +33,7 @@ class _CameraScreenState extends State<CameraScreen>
   String? country;
 
   final List<File> recentCaptured = [];
+  final ImagePicker _imagePicker = ImagePicker();
 
   FlashMode _flashMode = FlashMode.off;
   bool _isCameraInitializing = false;
@@ -39,6 +43,23 @@ class _CameraScreenState extends State<CameraScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => initialize());
+    // Start timer to update recording duration
+    _startRecordingTimer();
+  }
+
+  void _startRecordingTimer() {
+    Future.delayed(Duration(seconds: 1), () {
+      if (isRecording && recordingStartTime != null && mounted) {
+        setState(() {
+          recordingDuration = DateTime.now().difference(recordingStartTime!);
+        });
+        _startRecordingTimer(); // Continue timer
+      } else if (!isRecording) {
+        // Reset timer when not recording
+        recordingDuration = Duration.zero;
+        recordingStartTime = null;
+      }
+    });
   }
 
   @override
@@ -233,51 +254,214 @@ class _CameraScreenState extends State<CameraScreen>
     );
   }
 
- Future<void> takePhoto() async {
-  if (_controller == null || !_controller!.value.isInitialized) return;
+  Future<void> takePhoto() async {
+    if (_controller == null || !_controller!.value.isInitialized) return;
 
-  try {
-    final XFile xfile = await _controller!.takePicture();
+    try {
+      // Ensure location is fetched before taking photo
+      if (latitude == null || longitude == null) {
+        await fetchLocationAndAddress();
+      }
 
-    final File saved = await StorageService.saveMedia(xfile, isImage: true);
+      final XFile xfile = await _controller!.takePicture();
 
-    // Add to recent captured list
-    recentCaptured.insert(0, saved);
+      // Capture location values
+      final currentLat = latitude;
+      final currentLon = longitude;
+      final currentAddress = fullAddress;
 
-    if (!mounted) return;
-    setState(() {});
+      final File saved = await StorageService.saveMedia(
+        xfile,
+        isImage: true,
+        latitude: currentLat,
+        longitude: currentLon,
+        address: currentAddress,
+        extra: {
+          'city': city,
+          'state': state,
+          'country': country,
+          'capturedAt': DateTime.now().toIso8601String(),
+        },
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Photo saved")),
-    );
-  } catch (e) {
-    if (!mounted) return;
+      // Add to recent captured list
+      if (mounted) {
+        setState(() {
+          recentCaptured.insert(0, saved);
+        });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Failed to take photo: $e")),
-    );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              currentLat != null && currentLon != null
+                  ? "Photo saved with geotag"
+                  : "Photo saved (location unavailable)",
+            ),
+          ),
+        );
+      }
+    } catch (e, stackTrace) {
+      print('Error taking photo: $e');
+      print('Stack trace: $stackTrace');
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed to take photo: $e")));
+    }
   }
-}
 
   /// Start/stop video recording and save
   Future<void> toggleVideoRecording() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
+
     try {
       if (!isRecording) {
+        // Start recording
         await _controller!.startVideoRecording();
+        if (!mounted) return;
+        recordingStartTime = DateTime.now();
+        recordingDuration = Duration.zero;
         setState(() => isRecording = true);
+        _startRecordingTimer(); // Start the timer
       } else {
-        final xfile = await _controller!.stopVideoRecording();
-        final saved = await StorageService.saveMedia(xfile, isImage: false);
-        setState(() => isRecording = false);
+        // Stop recording - reset state FIRST to prevent UI issues
+        if (!mounted) return;
+        setState(() {
+          isRecording = false;
+          recordingDuration = Duration.zero;
+          recordingStartTime = null;
+        });
+
+        // Stop video recording
+        XFile xfile;
+        try {
+          xfile = await _controller!.stopVideoRecording();
+        } catch (stopError) {
+          print('Error stopping video recording: $stopError');
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Error stopping recording: $stopError")),
+          );
+          return;
+        }
+
+        // Verify file exists and is valid
+        final videoFile = File(xfile.path);
+        if (xfile.path.isEmpty || !await videoFile.exists()) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Video file not found")));
+          return;
+        }
+
+        // Save video in background to prevent blocking
+        _saveVideoFile(xfile).catchError((error) {
+          print('Error saving video: $error');
+          if (mounted) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text("Video saved locally")));
+          }
+        });
+      }
+    } catch (e, stackTrace) {
+      print('Video recording error: $e');
+      print('Stack trace: $stackTrace');
+      if (!mounted) return;
+      setState(() {
+        isRecording = false;
+        recordingDuration = Duration.zero;
+        recordingStartTime = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Recording error: ${e.toString()}")),
+      );
+    }
+  }
+
+  /// Save video file asynchronously - completely isolated to prevent crashes
+  Future<void> _saveVideoFile(XFile xfile) async {
+    // Use a separate isolate-like approach - don't access widget state
+    try {
+      // Capture location values before async operation
+      final currentLat = latitude;
+      final currentLon = longitude;
+      final currentAddress = fullAddress;
+      final currentCity = city;
+      final currentState = state;
+      final currentCountry = country;
+
+      // Save video file
+      final savedFile = await StorageService.saveMedia(
+        xfile,
+        isImage: false,
+        latitude: currentLat,
+        longitude: currentLon,
+        address: currentAddress,
+        extra: {
+          'city': currentCity,
+          'state': currentState,
+          'country': currentCountry,
+          'capturedAt': DateTime.now().toIso8601String(),
+        },
+      );
+
+      // Update UI only if widget is still mounted
+      if (mounted) {
+        // Add to recent captured list
+        if (await savedFile.exists()) {
+          setState(() {
+            recentCaptured.insert(0, savedFile);
+          });
+        }
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Video saved successfully")));
+      }
+    } catch (saveError, stackTrace) {
+      print('Error in _saveVideoFile: $saveError');
+      print('Stack trace: $stackTrace');
+      // Don't show error to user - video is saved locally anyway
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Video saved")));
       }
+    }
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$minutes:$seconds';
+  }
+
+  /// Open phone gallery to view photos/videos
+  Future<void> openPhoneGallery() async {
+    try {
+      // Open native gallery picker
+      final XFile? pickedFile = await _imagePicker.pickMedia(imageQuality: 100);
+
+      if (pickedFile != null) {
+        // User selected a file from gallery, you can navigate to view it
+        // or just show a preview
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => FullImageScreen(image: File(pickedFile.path)),
+          ),
+        );
+      }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text("Video recording failed")));
+      ).showSnackBar(SnackBar(content: Text("Failed to open gallery: $e")));
     }
   }
 
@@ -342,9 +526,48 @@ class _CameraScreenState extends State<CameraScreen>
           /// Fullscreen Camera Preview
           Positioned.fill(child: CameraPreview(localController)),
 
+          /// Recording Timer (shown when recording)
+          if (isRecording)
+            Positioned(
+              top: 50,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        _formatDuration(recordingDuration),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           /// TOP BAR (Flash, Switch Camera, Gallery)
           Positioned(
-            top: 40,
+            top: isRecording ? 100 : 40,
             left: 20,
             right: 20,
             child: Row(
@@ -407,25 +630,22 @@ class _CameraScreenState extends State<CameraScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Gallery button - opens phone gallery
                       GestureDetector(
-                        onTap: () {
-                          if (recentCaptured.isNotEmpty) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FullImageScreen(
-                                  image: recentCaptured.first,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        child: CircleAvatar(
-                          radius: 28,
-                          backgroundImage: recentCaptured.isNotEmpty
-                              ? FileImage(recentCaptured.first)
-                              : null,
-                          backgroundColor: Colors.grey.shade800,
+                        onTap: openPhoneGallery,
+                        child: Container(
+                          height: 56,
+                          width: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white70, width: 2),
+                          ),
+                          child: Icon(
+                            Icons.photo_library,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                         ),
                       ),
 

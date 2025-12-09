@@ -101,12 +101,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
               itemCount: images.length,
               itemBuilder: (context, index) {
                 final file = images[index];
-                final isSelected = selectedImages.contains(file);
                 final data = XFile(file.path);
+                // Check if this file is selected by comparing paths
+                final isSelected = selectedImages.any(
+                  (xfile) => xfile.path == file.path,
+                );
                 return GestureDetector(
                   onLongPress: () {
                     selectionMode = true;
-
                     toggleSelect(data);
                   },
                   onTap: () {
@@ -135,10 +137,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       if (isSelected)
                         Container(
                           color: Colors.black45,
-                          child: Icon(
-                            Icons.check_circle,
-                            color: Colors.white,
-                            size: 30,
+                          child: Center(
+                            child: Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 30,
+                            ),
                           ),
                         ),
                     ],

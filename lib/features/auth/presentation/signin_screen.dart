@@ -1,9 +1,6 @@
 import 'package:capture_campus/features/auth/data/user_model.dart';
 import 'package:capture_campus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:capture_campus/features/auth/presentation/bloc/auth_event.dart';
-import 'package:capture_campus/features/auth/presentation/login_screen.dart';
-import 'package:capture_campus/features/home/presentation/bloc/home_bloc.dart';
-import 'package:capture_campus/features/home/presentation/bloc/home_event.dart';
 import 'package:capture_campus/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
